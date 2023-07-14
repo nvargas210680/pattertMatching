@@ -36,7 +36,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route
-                path="/suggested-scholarship"
+                path="/complete-profile/:var1/:var2/suggested-scholarship"
                 element={<SuggestedScholarships />}
               />
               <Route

@@ -3,7 +3,7 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthProvider";
 import "./completeProfile.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CompleteProfile2 = () => {
   const tags = [
@@ -42,6 +42,7 @@ const CompleteProfile2 = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const { currentUser } = useAuth();
   const { var1, var2 } = useParams();
+  const navigate = useNavigate();
   // console.log(var1, var2);
 
   const handleTagClick = (tag) => {
@@ -55,6 +56,7 @@ const CompleteProfile2 = () => {
   };
 
   const handleSaveToFirebase = async () => {
+    navigate("suggested-scholarship");
     try {
       const userProfileData = {
         userId: currentUser.uid,
