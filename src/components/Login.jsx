@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Form, Button, Card, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthProvider";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -18,6 +18,8 @@ const Login = () => {
   const { signin, currentUser } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [matchedScholarships, setMatchedScholarships] = useState([]);
   const navigate = useNavigate();
   const { var1, var2 } = useParams();
 
@@ -33,19 +35,21 @@ const Login = () => {
         // Find collection based on selected tags
         const q = query(
           collection(db, "scholarships2"),
-          where("tag", "in", selectedTags)
+          where("tag", "in", userProfileData.tags)
         );
 
         const querySnapshot = await getDocs(q);
+
+        const matchedScholarships = [];
         querySnapshot.forEach((doc) => {
-          console.log(doc.id, " => ", doc.data());
-          // Perform actions with the matched documents
+          const scholarshipData = doc.data();
+          matchedScholarships.push(scholarshipData);
         });
 
-        navigate("suggested-scholarship");
-      } else {
-        console.log("User profile not found");
+        setMatchedScholarships(matchedScholarships);
       }
+
+      navigate("suggested-scholarship");
     } catch (error) {
       console.error("Error retrieving user data from Firebase:", error);
     }
@@ -102,6 +106,16 @@ const Login = () => {
       <div className="w-100 text-center mt-2">
         Need an account? <Link to="/signup">Sign Up</Link>
       </div>
+      {matchedScholarships.length > 0 && (
+        <div>
+          <h3>Matched Scholarships:</h3>
+          <ul>
+            {matchedScholarships.map((scholarship) => (
+              <li key={scholarship.id}>{scholarship.title}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </>
   );
 };
