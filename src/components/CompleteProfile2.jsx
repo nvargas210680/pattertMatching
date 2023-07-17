@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  setDoc,
+  doc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthProvider";
 import "./completeProfile.css";
@@ -43,7 +50,6 @@ const CompleteProfile2 = () => {
   const { currentUser } = useAuth();
   const { var1, var2 } = useParams();
   const navigate = useNavigate();
-  // console.log(var1, var2);
 
   const handleTagClick = (tag) => {
     if (selectedTags.includes(tag)) {
@@ -56,20 +62,23 @@ const CompleteProfile2 = () => {
   };
 
   const handleSaveToFirebase = async () => {
-    navigate("suggested-scholarship");
     try {
+      const userProfileRef = doc(db, "user_profile", currentUser.uid);
       const userProfileData = {
         userId: currentUser.uid,
-        tags: selectedTags,
         firstName: var1,
         lastName: var2,
+        tags: selectedTags,
       };
-      await addDoc(collection(db, "user_profile"), userProfileData);
+
+      await Promise.all([
+        setDoc(userProfileRef, userProfileData),
+        // saveTagsToFirebase(),
+      ]);
 
       console.log("Tags saved to Firebase user_profile collection");
-
+      navigate("suggested-scholarship");
       // Find collection based on selected tags
-
       const q = query(
         collection(db, "scholarships2"),
         where("tag", "in", selectedTags)
@@ -80,6 +89,9 @@ const CompleteProfile2 = () => {
         console.log(doc.id, " => ", doc.data());
         // Perform actions with the matched documents
       });
+
+      // Navigate to the "suggested-scholarship" page
+      navigate("/complete-profile/:var1/:var2/suggested-scholarship");
     } catch (error) {
       console.error("Error saving tags to Firebase:", error);
     }
